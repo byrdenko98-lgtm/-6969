@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenFocus</title>
+    <style>
+        /* Дизайн: Естетика без гострих кутів */
+        :root {
+            --bg: #f5f7f6;
+            --card: #ffffff;
+            --accent: #94a7ae; /* М'який серо-блакитний */
+            --text: #4a5558;
+            --radius: 24px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Картки та інпути */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        h2 { font-weight: 400; margin-bottom: 20px; font-size: 1.2rem; }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            background: #fcfdfd;
+            box-sizing: border-box;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .btn-group { display: flex; gap: 10px; }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border-radius: 18px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:active { opacity: 0.8; }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        /* Список завдань */
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f4f4;
+        }
+
+        .task-info b { display: block; margin-bottom: 4px; }
+        .task-info span { font-size: 0.85rem; color: #889296; }
+
+        .tag {
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            background: #edf2f4;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #b0bfc6;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <h1>ZenFocus</h1>
+        <p id="greeting">Доброго дня!</p>
+    </div>
+
+    <!-- Вибір локації -->
+    <div class="card">
+        <h2>Де ви зараз?</h2>
+        <div class="btn-group">
+            <button id="btnWork" onclick="setMode('Робота')">На роботі</button>
+            <button id="btnHome" class="btn-outline" onclick="setMode('Дім')">Вдома</button>
+        </div>
+    </div>
+
+    <!-- Форма додавання -->
+    <div class="card">
+        <h2>Нова задача</h2>
+        <input type="text" id="taskTitle" placeholder="Що саме нагадати?">
+        <select id="taskCategory">
+            <option value="Робота">Категорія: Робота</option>
+            <option value="Дім">Категорія: Дім</option>
+            <option value="Особисте">Категорія: Особисте</option>
+        </select>
+        <input type="datetime-local" id="taskTime">
+        <button onclick="saveTask()">Створити нагадування</button>
+    </div>
+
+    <!-- Список справ -->
+    <div id="tasksContainer"></div>
+</div>
+
+<script>
+    let currentMode = 'Робота';
+    let tasks = JSON.parse(localStorage.getItem('zenTasks')) || [];
+
+    // При запуску
+    window.onload = () => {
+        renderTasks();
+        requestNotifications();
+        checkIntervals();
+    };
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('btnWork').className = mode === 'Робота' ? '' : 'btn-outline';
+        document.getElementById('btnHome').className = mode === 'Дім' ? '' : 'btn-outline';
+        renderTasks();
+    }
+
+    function requestNotifications() {
+        if ("Notification" in window) {
+            Notification.requestPermission();
+        }
+    }
+
+    function saveTask() {
+        const title = document.getElementById('taskTitle').value;
+        const category = document.getElementById('taskCategory').value;
+        const time = document.getElementById('taskTime').value;
+
+        if (!title || !time) {
+            alert("Будь ласка, заповніть назву та час");
+            return;
+        }
+
+        const newTask = {
+            id: Date.now(),
+            title,
+            category,
+            time,
+            notified: false
+        };
+
+        tasks.push(newTask);
+        localStorage.setItem('zenTasks', JSON.stringify(tasks));
+        
+        // Очищення форми
+        document.getElementById('taskTitle').value = '';
+        renderTasks();
+    }
+
+    function deleteTask(id) {
+        tasks = tasks.filter(t => t.id !== id);
+        localStorage.setItem('zenTasks', JSON.stringify(tasks));
+        renderTasks();
+    }
+
+    function renderTasks() {
+        const container = document.getElementById('tasksContainer');
+        container.innerHTML = '';
+
+        // Фільтруємо задачі згідно з вибраним режимом (Робота/Дім) + Особисті показуємо завжди
+        const filtered = tasks.filter(t => t.category === currentMode || t.category === 'Особисте');
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state">Поки що немає завдань для цієї локації</div>';
+            return;
+        }
+
+        filtered.sort((a, b) => new Date(a.time) - new Date(b.time)).forEach(t => {
+            const date = new Date(t.time).toLocaleString('uk-UA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            container.innerHTML += `
+                <div class="card task-item">
+                    <div class="task-info">
+                        <b>${t.title}</b>
+                        <span>${date}</span>
+                    </div>
+                    <div style="text-align: right">
+                        <span class="tag">${t.category}</span><br>
+                        <small onclick="deleteTask(${t.id})" style="color: #ff9b9b; cursor: pointer; display: inline-block; margin-top: 10px;">Видалити</small>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // Перевірка нагадувань кожну хвилину
+    function checkIntervals() {
+        setInterval(() => {
+            const now = new Date().getTime();
+            tasks.forEach(t => {
+                const taskTime = new Date(t.time).getTime();
+                if (!t.notified && taskTime <= now) {
+                    sendNotification(t.title);
+                    t.notified = true;
+                    localStorage.setItem('zenTasks', JSON.stringify(tasks));
+                }
+            });
+        }, 10000); // перевірка кожні 10 секунд
+    }
+
+    function sendNotification(text) {
+        if (Notification.permission === "granted") {
+            new Notification("ZenFocus Нагадування", {
+                body: text,
+                icon: "https://cdn-icons-png.flaticon.com/512/3602/3602145.png"
+            });
+        } else {
+            alert("НАГАДУВАННЯ: " + text);
+        }
+    }
+</script>
+
+</body>
+</html>
