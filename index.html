@@ -3,254 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZenFocus</title>
+    <title>ZenFocus Ultra</title>
     <style>
-        /* Дизайн: Естетика без гострих кутів */
-        :root {
-            --bg: #f5f7f6;
-            --card: #ffffff;
-            --accent: #94a7ae; /* М'який серо-блакитний */
-            --text: #4a5558;
-            --radius: 24px;
-        }
-
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .app-container {
-            width: 100%;
-            max-width: 450px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        /* Картки та інпути */
-        .card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.04);
-            border: 1px solid rgba(255,255,255,0.8);
-        }
-
-        h2 { font-weight: 400; margin-bottom: 20px; font-size: 1.2rem; }
-
-        input, select {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 12px;
-            border-radius: 18px;
-            border: 1px solid #e2e8f0;
-            background: #fcfdfd;
-            box-sizing: border-box;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .btn-group { display: flex; gap: 10px; }
-
-        button {
-            flex: 1;
-            padding: 15px;
-            border-radius: 18px;
-            border: none;
-            background: var(--accent);
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        button:active { opacity: 0.8; }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--accent);
-            color: var(--accent);
-        }
-
-        /* Список завдань */
-        .task-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #f0f4f4;
-        }
-
-        .task-info b { display: block; margin-bottom: 4px; }
-        .task-info span { font-size: 0.85rem; color: #889296; }
-
-        .tag {
-            padding: 5px 12px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            background: #edf2f4;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #b0bfc6;
-            margin-top: 40px;
-        }
+        :root { --bg: #0d1117; --card: #161b22; --accent: #58a6ff; --work: #f78166; --home: #3fb950; --crypto: #d29922; --text: #c9d1d9; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 1000px; }
+        .card { background: var(--card); border-radius: 16px; padding: 25px; margin-bottom: 20px; border: 1px solid #30363d; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        h2 { color: var(--accent); margin-top: 0; }
+        input, select, button { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; color: white; font-size: 1rem; box-sizing: border-box; }
+        button { background: var(--accent); color: white; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
+        button.edit-btn { background: #30363d; width: auto; padding: 8px 15px; margin: 0 5px; }
+        button.delete-btn { background: #da3633; width: auto; padding: 8px 15px; margin: 0; }
+        .task-item { background: #21262d; padding: 20px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--accent); }
+        .grid-layout { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
+        @media (max-width: 800px) { .grid-layout { grid-template-columns: 1fr; } }
+        .badge { font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; background: #30363d; }
     </style>
 </head>
 <body>
-
 <div class="app-container">
-    <div class="header">
-        <h1>ZenFocus</h1>
-        <p id="greeting">Доброго дня!</p>
+    <div style="text-align:center; padding: 20px;">
+        <h1 style="color:white; margin:0;">ZenFocus Ultra 🚀</h1>
+        <p>Система контролю для бізнесу та дому</p>
     </div>
 
-    <!-- Вибір локації -->
-    <div class="card">
-        <h2>Де ви зараз?</h2>
-        <div class="btn-group">
-            <button id="btnWork" onclick="setMode('Робота')">На роботі</button>
-            <button id="btnHome" class="btn-outline" onclick="setMode('Дім')">Вдома</button>
+    <div class="grid-layout">
+        <div class="card">
+            <h2 id="formTitle">➕ Нова задача</h2>
+            <input type="hidden" id="editId">
+            <input type="text" id="taskTitle" placeholder="Опис нагадування">
+            <select id="taskCategory">
+                <option value="Бізнес">💼 Бізнес (Цукор / Автомати)</option>
+                <option value="Авто">🚗 Авто (Edge / Forester)</option>
+                <option value="Крипто">💰 Крипто / Binance</option>
+                <option value="Дім">🏠 Дім / Особисте</option>
+            </select>
+            <select id="taskRepeat">
+                <option value="once">Разово</option>
+                <option value="daily">Кожен день</option>
+                <option value="every-other">Через день</option>
+                <option value="2-week">2 рази на тиждень</option>
+                <option value="weekly">Раз на тиждень</option>
+            </select>
+            <input type="datetime-local" id="taskTime">
+            <button id="mainBtn" onclick="saveTask()">Створити нагадування</button>
+            <button id="cancelBtn" style="display:none; background: #30363d;" onclick="resetForm()">Скасувати редагування</button>
+        </div>
+
+        <div class="card">
+            <h2>📅 Ваші плани</h2>
+            <div id="tasksContainer"></div>
         </div>
     </div>
-
-    <!-- Форма додавання -->
-    <div class="card">
-        <h2>Нова задача</h2>
-        <input type="text" id="taskTitle" placeholder="Що саме нагадати?">
-        <select id="taskCategory">
-            <option value="Робота">Категорія: Робота</option>
-            <option value="Дім">Категорія: Дім</option>
-            <option value="Особисте">Категорія: Особисте</option>
-        </select>
-        <input type="datetime-local" id="taskTime">
-        <button onclick="saveTask()">Створити нагадування</button>
-    </div>
-
-    <!-- Список справ -->
-    <div id="tasksContainer"></div>
 </div>
 
+<audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
 <script>
-    let currentMode = 'Робота';
-    let tasks = JSON.parse(localStorage.getItem('zenTasks')) || [];
+    let tasks = JSON.parse(localStorage.getItem('zenUltraTasks')) || [];
 
-    // При запуску
-    window.onload = () => {
-        renderTasks();
-        requestNotifications();
-        checkIntervals();
+    window.onload = () => { 
+        renderTasks(); 
+        if (Notification.permission !== 'granted') Notification.requestPermission();
+        setInterval(checkTasks, 10000); 
     };
-
-    function setMode(mode) {
-        currentMode = mode;
-        document.getElementById('btnWork').className = mode === 'Робота' ? '' : 'btn-outline';
-        document.getElementById('btnHome').className = mode === 'Дім' ? '' : 'btn-outline';
-        renderTasks();
-    }
-
-    function requestNotifications() {
-        if ("Notification" in window) {
-            Notification.requestPermission();
-        }
-    }
 
     function saveTask() {
         const title = document.getElementById('taskTitle').value;
         const category = document.getElementById('taskCategory').value;
+        const repeat = document.getElementById('taskRepeat').value;
         const time = document.getElementById('taskTime').value;
+        const editId = document.getElementById('editId').value;
 
-        if (!title || !time) {
-            alert("Будь ласка, заповніть назву та час");
-            return;
+        if (!title || !time) return alert("Заповніть опис та час!");
+
+        if (editId) {
+            const index = tasks.findIndex(t => t.id == editId);
+            tasks[index] = { ...tasks[index], title, category, repeat, time, notified: false };
+        } else {
+            tasks.push({ id: Date.now(), title, category, repeat, time, notified: false });
         }
 
-        const newTask = {
-            id: Date.now(),
-            title,
-            category,
-            time,
-            notified: false
-        };
-
-        tasks.push(newTask);
-        localStorage.setItem('zenTasks', JSON.stringify(tasks));
-        
-        // Очищення форми
-        document.getElementById('taskTitle').value = '';
-        renderTasks();
-    }
-
-    function deleteTask(id) {
-        tasks = tasks.filter(t => t.id !== id);
-        localStorage.setItem('zenTasks', JSON.stringify(tasks));
+        localStorage.setItem('zenUltraTasks', JSON.stringify(tasks));
+        resetForm();
         renderTasks();
     }
 
     function renderTasks() {
-        const container = document.getElementById('tasksContainer');
-        container.innerHTML = '';
-
-        // Фільтруємо задачі згідно з вибраним режимом (Робота/Дім) + Особисті показуємо завжди
-        const filtered = tasks.filter(t => t.category === currentMode || t.category === 'Особисте');
-
-        if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state">Поки що немає завдань для цієї локації</div>';
-            return;
-        }
-
-        filtered.sort((a, b) => new Date(a.time) - new Date(b.time)).forEach(t => {
-            const date = new Date(t.time).toLocaleString('uk-UA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-            container.innerHTML += `
-                <div class="card task-item">
-                    <div class="task-info">
-                        <b>${t.title}</b>
-                        <span>${date}</span>
+        const cont = document.getElementById('tasksContainer');
+        cont.innerHTML = '';
+        const colors = {"Бізнес": "#f78166", "Авто": "#58a6ff", "Крипто": "#d29922", "Дім": "#3fb950"};
+        
+        tasks.sort((a, b) => new Date(a.time) - new Date(b.time)).forEach(t => {
+            cont.innerHTML += `
+                <div class="task-item" style="border-left-color: ${colors[t.category]}">
+                    <div>
+                        <strong>${t.title}</strong> <span class="badge">${t.repeat}</span><br>
+                        <small>${new Date(t.time).toLocaleString()}</small>
                     </div>
-                    <div style="text-align: right">
-                        <span class="tag">${t.category}</span><br>
-                        <small onclick="deleteTask(${t.id})" style="color: #ff9b9b; cursor: pointer; display: inline-block; margin-top: 10px;">Видалити</small>
+                    <div>
+                        <button class="edit-btn" onclick="editTask(${t.id})">✎</button>
+                        <button class="delete-btn" onclick="deleteTask(${t.id})">✕</button>
                     </div>
-                </div>
-            `;
+                </div>`;
         });
     }
 
-    // Перевірка нагадувань кожну хвилину
-    function checkIntervals() {
-        setInterval(() => {
-            const now = new Date().getTime();
-            tasks.forEach(t => {
-                const taskTime = new Date(t.time).getTime();
-                if (!t.notified && taskTime <= now) {
-                    sendNotification(t.title);
-                    t.notified = true;
-                    localStorage.setItem('zenTasks', JSON.stringify(tasks));
-                }
-            });
-        }, 10000); // перевірка кожні 10 секунд
+    function editTask(id) {
+        const t = tasks.find(task => task.id === id);
+        document.getElementById('taskTitle').value = t.title;
+        document.getElementById('taskCategory').value = t.category;
+        document.getElementById('taskRepeat').value = t.repeat;
+        document.getElementById('taskTime').value = t.time;
+        document.getElementById('editId').value = t.id;
+        document.getElementById('mainBtn').innerText = "Оновити задачу";
+        document.getElementById('formTitle').innerText = "✎ Редагування";
+        document.getElementById('cancelBtn').style.display = "block";
     }
 
-    function sendNotification(text) {
-        if (Notification.permission === "granted") {
-            new Notification("ZenFocus Нагадування", {
-                body: text,
-                icon: "https://cdn-icons-png.flaticon.com/512/3602/3602145.png"
-            });
-        } else {
-            alert("НАГАДУВАННЯ: " + text);
-        }
+    function resetForm() {
+        document.getElementById('taskTitle').value = '';
+        document.getElementById('editId').value = '';
+        document.getElementById('mainBtn').innerText = "Створити нагадування";
+        document.getElementById('formTitle').innerText = "➕ Нова задача";
+        document.getElementById('cancelBtn').style.display = "none";
+    }
+
+    function deleteTask(id) {
+        tasks = tasks.filter(t => t.id !== id);
+        localStorage.setItem('zenUltraTasks', JSON.stringify(tasks));
+        renderTasks();
+    }
+
+    function checkTasks() {
+        const now = new Date();
+        tasks.forEach(t => {
+            const tTime = new Date(t.time);
+            if (!t.notified && tTime <= now) {
+                document.getElementById('notifSound').play().catch(e => console.log("Sound blocked"));
+                new Notification("Нагадування: " + t.title, { body: t.category });
+                t.notified = true;
+
+                if (t.repeat !== 'once') {
+                    if (t.repeat === 'daily') tTime.setDate(tTime.getDate() + 1);
+                    if (t.repeat === 'every-other') tTime.setDate(tTime.getDate() + 2);
+                    if (t.repeat === '2-week') tTime.setDate(tTime.getDate() + 3);
+                    if (t.repeat === 'weekly') tTime.setDate(tTime.getDate() + 7);
+                    t.time = tTime.toISOString().slice(0, 16);
+                    t.notified = false;
+                }
+                localStorage.setItem('zenUltraTasks', JSON.stringify(tasks));
+                renderTasks();
+            }
+        });
     }
 </script>
-
 </body>
 </html>
